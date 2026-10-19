@@ -5,6 +5,6 @@
 	"compatibility_date": "2026-10-01",
 	"compatibility_flags": ["nodejs_compat"],
 	"assets": { "binding": "ASSETS", "directory": ".svelte-kit/cloudflare" },
-	"observability": { "enabled": true }
-	// "account_id": "<set before deploy>"
+	"observability": { "enabled": true },
+	"account_id": "9afa0c9be58a0bb6d2f7d43f6ec2fedb" // mastermakrelas Account
 }

@@ -1,56 +1,41 @@
-# sv
+# Clipboard playground
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Shows what the browser can see on the clipboard and in drag & drop on a single screen: paste, drop,
+the bottom-left Read/Watch dock, or the right-click menu (all write paths), and the latest result
+replaces the headline. `/write` builds a multi-type clipboard and writes it four ways.
+`/about` has the explanations. Use it with clients who report "copy/paste doesn't work".
+Background: https://alexharri.com/blog/clipboard
 
-## Creating a project
+Agent-readable: `/llms.txt` and the skill at `/skills/web-clipboard-custom-formats/SKILL.md`
+(`npx skills add <origin>/skills/web-clipboard-custom-formats/SKILL.md`).
 
-If you're seeing this, you've probably already done this step. Congrats!
+Probes:
 
-```sh
-# create a new project
-npx sv create my-app
-```
+- **Async Clipboard API** – `navigator.clipboard.read()`: permission state, focus requirement, every
+  type of every item with a preview. Optional watch mode (`clipboardchange` when supported, else
+  re-read on focus + interval).
+- **Paste event** – `clipboardData` on ⌘V: all types including custom ones and files copied from
+  Finder/Explorer, which the async API usually hides.
+- **Drag & drop** – what is visible during `dragover` (protected mode) vs after `drop`
+  (names, sizes, directory entries, file-system handles).
+- **Write** – writes text/html/png, tries forbidden types, `web ` custom formats and the `copy`
+  event path, and shows the exact error the browser throws.
 
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@1.1.1 create --template minimal --types ts --no-install clipboard-playground
-```
-
-## Adding features
-
-Add features to your project with `sv add`:
-
-```sh
-npx sv add
-```
-
-For example, to add Tailwind CSS:
+## Dev
 
 ```sh
-npx sv add tailwindcss
+bun install
+bun run dev
+bun run check
 ```
 
-## Developing
+## Deploy (Cloudflare Workers)
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Deploys to mastermakrelas Account (`account_id` is pinned in `wrangler.jsonc`), live at
+https://clipboard-playground.mastermakrela.workers.dev
 
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+bun run deploy
 ```
 
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+The async Clipboard API requires a secure context, so test on `https://` or `localhost`.

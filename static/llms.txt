@@ -1,0 +1,17 @@
+# Clipboard playground
+
+> A browser-only tool for inspecting what the web clipboard and drag-and-drop expose, and a reference for implementing custom copy/paste formats in web apps. Nothing leaves the browser: there is no server logic.
+
+## For agents implementing custom copy/paste
+
+- [Skill: web-clipboard-custom-formats](/skills/web-clipboard-custom-formats/SKILL.md): the rules and four code recipes (trusted copy event via execCommand, paste handler, Figma-style payload inside text/html, Chromium Web Custom Formats), plus permission, focus and drag protected-mode gotchas. Install with `npx skills add <this-origin>/skills/web-clipboard-custom-formats/SKILL.md`.
+
+## Pages
+
+- [/](/): a single screen. Press ⌘V / Ctrl+V, drop a file, use the bottom-left Read button, or right-click for every write path; the result replaces the headline.
+- [/write](/write): build a clipboard from several representations (any MIME or made-up type) and write it four ways: copy event, clipboard.write(), Web Custom Formats, and embedded in text/html.
+- [/about](/about): the concepts explained, with the source article.
+
+## Background
+
+- [The web's clipboard, and how it stores data of different types](https://alexharri.com/blog/clipboard) by Alex Harri.
