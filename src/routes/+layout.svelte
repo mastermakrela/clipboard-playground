@@ -16,7 +16,10 @@
 				<a href={l.href} aria-current={page.url.pathname === l.href ? 'page' : undefined}>{l.label}</a>
 			{/each}
 		</nav>
-		<a href="/about" aria-current={page.url.pathname === '/about' ? 'page' : undefined}>How it works</a>
+		<nav>
+			<a href="/about" aria-current={page.url.pathname === '/about' ? 'page' : undefined}>How it works</a>
+			<a href="https://github.com/mastermakrela/clipboard-playground" rel="external">Source</a>
+		</nav>
 	</header>
 	{@render children()}
 </div>

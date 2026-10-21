@@ -11,6 +11,7 @@
 - [/](/): a single screen. Press ⌘V / Ctrl+V, drop a file, use the bottom-left Read button, or right-click for every write path; the result replaces the headline.
 - [/write](/write): build a clipboard from several representations (any MIME or made-up type) and write it four ways: copy event, clipboard.write(), Web Custom Formats, and embedded in text/html.
 - [/about](/about): the concepts explained, with the source article.
+- [Source code](https://github.com/mastermakrela/clipboard-playground): the public GitHub repo (SvelteKit on Cloudflare Workers).
 
 ## Background
 
