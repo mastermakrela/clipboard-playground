@@ -50,7 +50,6 @@
 						if (type.startsWith('text/')) row.text = await blob.text();
 						else if (type.startsWith('image/')) {
 							row.url = URL.createObjectURL(blob);
-							urls.push(row.url);
 						}
 					} catch (e) {
 						row.err = fmt(e);
