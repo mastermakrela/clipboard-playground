@@ -88,6 +88,20 @@
 		tells you whether the browser accepts a given type.
 	</p>
 
+	<h2>Several formats, one paste</h2>
+	<p>
+		One <code>ClipboardItem</code> can hold the same content as plain text, HTML and an image. The
+		app you paste into picks one: a mail client takes the HTML, a code editor the text, an image
+		editor the PNG. Only <code>text/plain</code>, <code>text/html</code> and <code>image/png</code>
+		work everywhere. <code>image/svg+xml</code> is Chromium only, and there is no Markdown type:
+		Markdown travels as plain text.
+	</p>
+	<p>
+		Safari forgets the click that allowed the copy once the page awaits something. Work that takes
+		time, like drawing a PNG, goes into the <code>ClipboardItem</code> as a promise instead of being
+		awaited before <code>write()</code>.
+	</p>
+
 	<h2>Further reading</h2>
 	<p>
 		Alex Harri, <a href="https://alexharri.com/blog/clipboard"

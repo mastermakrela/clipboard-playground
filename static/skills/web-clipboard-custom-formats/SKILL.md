@@ -8,10 +8,29 @@ metadata:
 
 ## The two APIs and what each can do
 
-- Async Clipboard API (`navigator.clipboard.read/write`, `ClipboardItem`): callable any time the document is focused and permission is granted. Only `text/plain`, `text/html` and `image/png` are allowed on write; anything else rejects with "Type X not supported on write". Chromium additionally accepts `web ` prefixed types (Web Custom Formats, below). `read()` never returns files from the OS.
+- Async Clipboard API (`navigator.clipboard.read/write`, `ClipboardItem`): callable any time the document is focused and permission is granted. Only `text/plain`, `text/html` and `image/png` are guaranteed on write; anything else rejects with "Type X not supported on write". Optional types: `image/svg+xml` (Chromium 124+, not Firefox or Safari) and `web ` prefixed types (Web Custom Formats, below); feature-detect with `ClipboardItem.supports()`. There is no `text/markdown`: Markdown goes in `text/plain`, which is where editors, chat apps and LLM prompts read it. `read()` never returns files from the OS.
 - Clipboard Events API (`copy`/`cut`/`paste` events, `event.clipboardData` is a `DataTransfer`): accepts ANY type string in `setData`/`getData`, including files on paste. Only works inside an event the user agent dispatched (`event.isTrusted === true`): a real ⌘C/⌘V/Ctrl+C/Ctrl+V, or `document.execCommand('copy')`. Synthetic events dispatched with `dispatchEvent` never touch the system clipboard.
 
 Consequence: a custom format needs the Clipboard Events API or Web Custom Formats. A "Paste" button cannot read custom types or files; only the user's paste gesture can.
+
+## Recipe: rich copy for apps you don't control (async API)
+
+One `ClipboardItem` carries several representations of the SAME content; the pasting app takes one of them, never several. Mail and word processors take `text/html`, editors and chat apps `text/plain`, image editors `image/png`.
+
+```js
+await navigator.clipboard.write([new ClipboardItem({
+  'text/plain': new Blob([markdown], { type: 'text/plain' }),
+  'text/html': new Blob([html], { type: 'text/html' }),
+  // only when the copy IS a picture (one diagram), not alongside a whole document
+  'image/png': renderPng(), // a Promise<Blob>
+})]);
+```
+
+- Safari drops the user gesture across an `await`: put the async work INSIDE the item, as a `Promise<Blob>` value, instead of awaiting it before `write()`. Chromium accepts the promise form too.
+- Images inside the HTML must be inlined as `data:` URIs: a relative URL or one behind a login is a broken image in the pasting app.
+- `image/svg+xml` only where `ClipboardItem.supports('image/svg+xml')`; add `image/png` regardless, it is the one image type every browser and paste target has.
+- An SVG that relies on page CSS (custom properties, web fonts) loses it on the clipboard and when rasterised: resolve colours to literals or give every `var()` a fallback.
+- No format picker needed for the default copy; offer one ("Copy as Markdown", "Copy image") only where the paste target would pick the wrong representation.
 
 ## Recipe: copy custom data from a button (works in all browsers)
 
