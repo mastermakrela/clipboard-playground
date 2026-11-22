@@ -1,6 +1,15 @@
 <script lang="ts">
 	import { copyViaEvent } from '#lib/copy.ts';
-	import { transformsFor, type Transform } from '#lib/convert.ts';
+	import { transformsFor, type Target, type Transform } from '#lib/convert.ts';
+
+	// colours follow the apps people paste into: Word blue for rich text, Slack aubergine
+	const BADGES: Record<Target, { glyph: string; color: string }> = {
+		markdown: { glyph: 'M↓', color: '#24292f' },
+		slack: { glyph: '#', color: '#611f69' },
+		plain: { glyph: 'T', color: '#6b7280' },
+		'rich text': { glyph: 'W', color: '#185abd' },
+		JSON: { glyph: '{}', color: '#b45309' }
+	};
 
 	type FileInfo = { name: string; type: string; size: number; modified: string; url?: string };
 	type Entry = { kind: string; type: string; text?: string; file?: FileInfo | null };
@@ -64,6 +73,21 @@
 </script>
 
 <svelte:document {onpaste} />
+
+{#snippet badge(to: Target)}
+	<span class="badge" style:background={BADGES[to].color} aria-hidden="true">{BADGES[to].glyph}</span>
+{/snippet}
+
+{#if shown && transforms.length}
+	<div class="dock" role="group" aria-label="Copy as">
+		{#each transforms as t (t.label)}
+			<button onclick={() => copy(t)} title={t.label}>
+				{@render badge(t.to)}
+				<span>{copied === t.label ? 'copied' : t.to}</span>
+			</button>
+		{/each}
+	</div>
+{/if}
 
 {#if shown && result}
 	<div class="results">
@@ -142,6 +166,7 @@
 			<h3>transform ({transforms.length})</h3>
 			{#each transforms as t (t.label)}
 				<div class="row" style="margin-top: 12px">
+					{@render badge(t.to)}
 					<span>{t.label}</span>
 					<span class="muted mono">{t.out.map(([type]) => type).join(' + ')}</span>
 					<button onclick={() => copy(t)}>Copy</button>
@@ -152,3 +177,34 @@
 		{/if}
 	</div>
 {/if}
+
+<style>
+	.badge {
+		display: inline-grid;
+		place-items: center;
+		min-width: 22px;
+		height: 22px;
+		padding: 0 4px;
+		border-radius: 999px;
+		color: #fff;
+		font: 700 11px/1 var(--sans);
+	}
+	.dock {
+		position: fixed;
+		right: 20px;
+		bottom: 20px;
+		z-index: 5;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 6px;
+	}
+	.dock button {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 5px 14px 5px 5px;
+		border-radius: 999px;
+		box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+	}
+</style>

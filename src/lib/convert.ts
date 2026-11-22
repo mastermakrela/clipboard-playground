@@ -28,7 +28,8 @@ const flavors = {
 	plain: { bold: '', italic: '', strike: '', bullet: '• ', pipes: false, link: spelled, heading: (t) => t }
 } satisfies Record<string, Flavor>;
 
-export type Transform = { label: string; out: [type: string, value: string][]; preview: string };
+export type Target = keyof typeof flavors | 'rich text' | 'JSON';
+export type Transform = { label: string; to: Target; out: [type: string, value: string][]; preview: string };
 
 const MARKDOWNISH = /^(#{1,6} |[-*+] |\d+\. |> |```)|\*\*\S|\[[^\]]+\]\([^)]+\)/m;
 
@@ -40,17 +41,17 @@ export function transformsFor(data: { type: string; text: string }[]): Transform
 	const json = data.find((d) => d.type === 'text/plain' || d.type.endsWith('json'))?.text;
 	const list: Transform[] = [];
 	if (html) {
-		for (const [name, f] of Object.entries(flavors)) {
+		for (const [name, f] of Object.entries(flavors) as [keyof typeof flavors, Flavor][]) {
 			const text = htmlTo(html, f);
-			list.push({ label: `rich text → ${name}`, out: [['text/plain', text]], preview: text });
+			list.push({ label: `rich text → ${name}`, to: name, out: [['text/plain', text]], preview: text });
 		}
 	} else if (plain && MARKDOWNISH.test(plain)) {
 		const rich = marked.parse(plain, { async: false });
-		list.push({ label: 'markdown → rich text', out: [['text/plain', plain], ['text/html', rich]], preview: rich });
+		list.push({ label: 'markdown → rich text', to: 'rich text', out: [['text/plain', plain], ['text/html', rich]], preview: rich });
 	}
 	try {
 		const pretty = json && /^\s*[[{]/.test(json) ? JSON.stringify(JSON.parse(json), null, 2) : null;
-		if (pretty && pretty !== json) list.push({ label: 'JSON → pretty', out: [['text/plain', pretty]], preview: pretty });
+		if (pretty && pretty !== json) list.push({ label: 'JSON → pretty', to: 'JSON', out: [['text/plain', pretty]], preview: pretty });
 	} catch {
 		// not JSON after all: nothing to offer
 	}
